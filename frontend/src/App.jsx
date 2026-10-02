@@ -563,7 +563,7 @@ function App() {
           employeeId: payrollForm.employeeId,
           payPeriod: payrollForm.payPeriod
         },
-        authConfig
+        getAuthConfig() 
       );
 
       await fetchPayrolls();
