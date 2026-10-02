@@ -1,8 +1,16 @@
+
 import { useEffect, useState } from "react";
 import axios from "axios";
 import "./App.css";
 
-const API_URL = "http://localhost:5000/api";
+// Local development:
+// http://localhost:5000/api
+//
+// For Render deployment, create frontend/.env.production with:
+// VITE_API_URL=https://YOUR-BACKEND-URL.onrender.com/api
+
+const API_URL =
+  import.meta.env.VITE_API_URL || "http://localhost:5000/api";
 
 function App() {
   const [loggedIn, setLoggedIn] = useState(
@@ -52,13 +60,14 @@ function App() {
     payPeriod: "September 2026"
   });
 
-  const token = localStorage.getItem("token");
+  // Always get the latest token from localStorage.
+  const getToken = () => localStorage.getItem("token");
 
-  const authConfig = {
+  const getAuthConfig = () => ({
     headers: {
-      Authorization: `Bearer ${token}`
+      Authorization: `Bearer ${getToken()}`
     }
-  };
+  });
 
   const formatMoney = (amount) => {
     return `₦${Number(amount || 0).toLocaleString()}`;
@@ -75,17 +84,32 @@ function App() {
     setLoading(true);
 
     try {
-      const response = await axios.post(`${API_URL}/auth/login`, {
-        email,
-        password
-      });
+      const res = await axios.post(
+        `${API_URL}/auth/login`,
+        {
+          email,
+          password
+        },
+        getAuthConfig()
+      );
 
-      localStorage.setItem("token", response.data.data.token);
+      const token = res.data?.data?.token;
+
+      if (!token) {
+        throw new Error("Login succeeded but no token was returned");
+      }
+
+      localStorage.setItem("token", token);
 
       setLoggedIn(true);
+      setActivePage("Dashboard");
     } catch (error) {
+      console.error("Login error:", error);
+
       setLoginError(
-        error.response?.data?.message || "Login failed"
+        error.response?.data?.message ||
+        error.message ||
+        "Login failed"
       );
     } finally {
       setLoading(false);
@@ -102,6 +126,8 @@ function App() {
     setActivePage("Dashboard");
   };
 
+
+
   // =========================
   // EMPLOYEES
   // =========================
@@ -110,7 +136,7 @@ function App() {
     try {
       const response = await axios.get(
         `${API_URL}/employees`,
-        authConfig
+        getAuthConfig()
       );
 
       setEmployees(response.data.data || []);
@@ -132,7 +158,7 @@ function App() {
           position: employeeForm.position,
           salary: Number(employeeForm.salary)
         },
-        authConfig
+        getAuthConfig()
       );
 
       setEmployeeForm({
@@ -167,7 +193,7 @@ function App() {
           position: employeeForm.position,
           salary: Number(employeeForm.salary)
         },
-        authConfig
+        getAuthConfig()
       );
 
       setEmployeeForm({
@@ -215,7 +241,7 @@ function App() {
     try {
       await axios.delete(
         `${API_URL}/employees/${id}`,
-        authConfig
+        getAuthConfig()
       );
 
       await fetchEmployees();
@@ -249,7 +275,7 @@ function App() {
     try {
       const response = await axios.get(
         `${API_URL}/salaries`,
-        authConfig
+        getAuthConfig()
       );
 
       setSalaries(response.data.data || []);
@@ -270,7 +296,7 @@ function App() {
           allowances: Number(salaryForm.allowances || 0),
           effectiveDate: salaryForm.effectiveDate
         },
-        authConfig
+        getAuthConfig()
       );
 
       setSalaryForm({
