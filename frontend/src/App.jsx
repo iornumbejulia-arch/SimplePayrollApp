@@ -9,8 +9,7 @@ import "./App.css";
 // For Render deployment, create frontend/.env.production with:
 // VITE_API_URL=https://YOUR-BACKEND-URL.onrender.com/api
 
-const API_URL =
-  import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+const API_URL = "https://simplepayrollapp.onrender.com/api";
 
 function App() {
   const [loggedIn, setLoggedIn] = useState(
@@ -90,10 +89,10 @@ function App() {
           email,
           password
         },
-        getAuthConfig()
       );
 
-      const token = res.data?.data?.token;
+      const token = res.data?.token || res.data?.data?.token;
+
 
       if (!token) {
         throw new Error("Login succeeded but no token was returned");
@@ -329,7 +328,7 @@ function App() {
           allowances: Number(salaryForm.allowances || 0),
           effectiveDate: salaryForm.effectiveDate
         },
-        authConfig
+        getAuthConfig()
       );
 
       setSalaryForm({
@@ -379,7 +378,7 @@ function App() {
     try {
       await axios.delete(
         `${API_URL}/salaries/${id}`,
-        authConfig
+        getAuthConfig()
       );
 
       await fetchSalaries();
@@ -412,7 +411,7 @@ function App() {
     try {
       const response = await axios.get(
         `${API_URL}/deductions`,
-        authConfig
+        getAuthConfig()
       );
 
       setDeductions(response.data.data || []);
@@ -433,7 +432,7 @@ function App() {
           amount: Number(deductionForm.amount),
           description: deductionForm.description
         },
-        authConfig
+        getAuthConfig()
       );
 
       setDeductionForm({
@@ -466,7 +465,7 @@ function App() {
           amount: Number(deductionForm.amount),
           description: deductionForm.description
         },
-        authConfig
+        getAuthConfig()
       );
 
       setDeductionForm({
@@ -512,7 +511,7 @@ function App() {
     try {
       await axios.delete(
         `${API_URL}/deductions/${id}`,
-        authConfig
+        getAuthConfig()
       );
 
       await fetchDeductions();
@@ -545,7 +544,7 @@ function App() {
     try {
       const response = await axios.get(
         `${API_URL}/payrolls`,
-        authConfig
+        getAuthConfig()
       );
 
       setPayrolls(response.data.data || []);
