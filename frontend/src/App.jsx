@@ -22,6 +22,19 @@ function App() {
   const [password, setPassword] = useState("");
   const [loginError, setLoginError] = useState("");
   const [loading, setLoading] = useState(false);
+ const [showLoginPassword, setShowLoginPassword] = useState(false);
+const [showRegisterPassword, setShowRegisterPassword] = useState(false);
+const [showResetPassword, setShowResetPassword] = useState(false);
+  const [authPage, setAuthPage] = useState("login");
+
+const [registerName, setRegisterName] = useState("");
+const [registerEmail, setRegisterEmail] = useState("");
+const [registerPassword, setRegisterPassword] = useState("");
+const [registerError, setRegisterError] = useState("");
+
+const [forgotEmail, setForgotEmail] = useState("");
+const [newPassword, setNewPassword] = useState("");
+const [forgotError, setForgotError] = useState("");
 
   const [employees, setEmployees] = useState([]);
   const [salaries, setSalaries] = useState([]);
@@ -125,7 +138,84 @@ function App() {
     setActivePage("Dashboard");
   };
 
+     // =========================
+  // REGISTER
+  // =========================
 
+  const registerUser = async (e) => {
+    e.preventDefault();
+
+    setRegisterError("");
+    setLoading(true);
+
+    try {
+      await axios.post(
+        `${API_URL}/auth/register`,
+        {
+          name: registerName,
+          email: registerEmail,
+          password: registerPassword
+        }
+      );
+
+      alert("Account created successfully. You can now login.");
+
+      setRegisterName("");
+      setRegisterEmail("");
+      setRegisterPassword("");
+
+      setEmail(registerEmail);
+      setPassword("");
+      setAuthPage("login");
+
+    } catch (error) {
+      setRegisterError(
+        error.response?.data?.message ||
+        "Unable to create account"
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
+
+
+  // =========================
+  // FORGOT PASSWORD
+  // =========================
+
+  const resetPassword = async (e) => {
+    e.preventDefault();
+
+    setForgotError("");
+    setLoading(true);
+
+    try {
+      await axios.post(
+        `${API_URL}/auth/forgot-password`,
+        {
+          email: forgotEmail,
+          newPassword: newPassword
+        }
+      );
+
+      alert("Password reset successfully. You can now login.");
+
+      setForgotEmail("");
+      setNewPassword("");
+
+      setEmail(forgotEmail);
+      setPassword("");
+      setAuthPage("login");
+
+    } catch (error) {
+      setForgotError(
+        error.response?.data?.message ||
+        "Unable to reset password"
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
 
   // =========================
   // EMPLOYEES
@@ -597,7 +687,210 @@ function App() {
   // LOGIN SCREEN
   // =========================
 
+    // =========================
+  // AUTHENTICATION SCREENS
+  // =========================
+
   if (!loggedIn) {
+
+    // REGISTER SCREEN
+    if (authPage === "register") {
+      return (
+        <div className="login-page">
+          <div className="login-box">
+
+            <div className="login-logo">
+              SP
+            </div>
+
+            <h1>Create Account</h1>
+
+            <p className="login-subtitle">
+              Register for Simple Payroll
+            </p>
+
+            <form onSubmit={registerUser}>
+
+              <label>Name</label>
+
+              <input
+                type="text"
+                placeholder="Enter your name"
+                value={registerName}
+                onChange={(e) =>
+                  setRegisterName(e.target.value)
+                }
+                required
+              />
+
+              <label>Email</label>
+
+              <input
+                type="email"
+                placeholder="Enter your email"
+                value={registerEmail}
+                onChange={(e) =>
+                  setRegisterEmail(e.target.value)
+                }
+                required
+              />
+
+              <label>Password</label>
+
+              <div className="password-wrapper">
+
+  <input
+    type={showRegisterPassword ? "text" : "password"}
+    placeholder="Create a password"
+    value={registerPassword}
+    onChange={(e) => setRegisterPassword(e.target.value)}
+    required
+  />
+
+  <button
+    type="button"
+    className="password-toggle"
+    onClick={() =>
+      setShowRegisterPassword(!showRegisterPassword)
+    }
+    aria-label={
+      showRegisterPassword
+        ? "Hide password"
+        : "Show password"
+    }
+  >
+    {showRegisterPassword ? "🙈" : "👁️"}
+  </button>
+
+</div>
+              <button
+                className="primary-button"
+                type="submit"
+                disabled={loading}
+              >
+                {loading ? "Creating account..." : "Create Account"}
+              </button>
+
+              {registerError && (
+                <div className="error-message">
+                  {registerError}
+                </div>
+              )}
+
+            </form>
+
+            <button
+              type="button"
+              className="text-button"
+              onClick={() => {
+                setRegisterError("");
+                setAuthPage("login");
+              }}
+            >
+              Already have an account? Login
+            </button>
+
+          </div>
+        </div>
+      );
+    }
+
+
+    // FORGOT PASSWORD SCREEN
+    if (authPage === "forgot") {
+      return (
+        <div className="login-page">
+          <div className="login-box">
+
+            <div className="login-logo">
+              SP
+            </div>
+
+            <h1>Reset Password</h1>
+
+            <p className="login-subtitle">
+              Create a new password
+            </p>
+
+            <form onSubmit={resetPassword}>
+
+              <label>Email</label>
+
+              <input
+                type="email"
+                placeholder="Enter your email"
+                value={forgotEmail}
+                onChange={(e) =>
+                  setForgotEmail(e.target.value)
+                }
+                required
+              />
+
+             <label>New Password</label>
+
+<div className="password-wrapper">
+
+  <input
+    type={showResetPassword ? "text" : "password"}
+    placeholder="Create a new password"
+    value={newPassword}
+    onChange={(e) =>
+      setNewPassword(e.target.value)
+    }
+    required
+  />
+
+  <button
+    type="button"
+    className="password-toggle"
+    onClick={() =>
+      setShowResetPassword(!showResetPassword)
+    }
+    aria-label={
+      showResetPassword
+        ? "Hide password"
+        : "Show password"
+    }
+  >
+    {showResetPassword ? "🙈" : "👁️"}
+  </button>
+
+</div>
+
+              <button
+                className="primary-button"
+                type="submit"
+                disabled={loading}
+              >
+                {loading ? "Resetting..." : "Reset Password"}
+              </button>
+
+              {forgotError && (
+                <div className="error-message">
+                  {forgotError}
+                </div>
+              )}
+
+            </form>
+
+            <button
+              type="button"
+              className="text-button"
+              onClick={() => {
+                setForgotError("");
+                setAuthPage("login");
+              }}
+            >
+              Back to Login
+            </button>
+
+          </div>
+        </div>
+      );
+    }
+
+
+    // LOGIN SCREEN
     return (
       <div className="login-page">
         <div className="login-box">
@@ -609,7 +902,7 @@ function App() {
           <h1>Simple Payroll</h1>
 
           <p className="login-subtitle">
-            Admin Login
+            Sign in to your account
           </p>
 
           <form onSubmit={login}>
@@ -624,15 +917,34 @@ function App() {
               required
             />
 
-            <label>Password</label>
+           <label>Password</label>
 
-            <input
-              type="password"
-              placeholder="Enter your password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
+<div className="password-wrapper">
+
+  <input
+    type={showLoginPassword ? "text" : "password"}
+    placeholder="Enter your password"
+    value={password}
+    onChange={(e) => setPassword(e.target.value)}
+    required
+  />
+
+  <button
+    type="button"
+    className="password-toggle"
+    onClick={() =>
+      setShowLoginPassword(!showLoginPassword)
+    }
+    aria-label={
+      showLoginPassword
+        ? "Hide password"
+        : "Show password"
+    }
+  >
+    {showLoginPassword ? "🙈" : "👁️"}
+  </button>
+
+</div>
 
             <button
               className="primary-button"
@@ -649,6 +961,32 @@ function App() {
             )}
 
           </form>
+
+          <div className="auth-links">
+
+            <button
+              type="button"
+              className="text-button"
+              onClick={() => {
+                setLoginError("");
+                setAuthPage("register");
+              }}
+            >
+              Create Account
+            </button>
+
+            <button
+              type="button"
+              className="text-button"
+              onClick={() => {
+                setLoginError("");
+                setAuthPage("forgot");
+              }}
+            >
+              Forgot Password?
+            </button>
+
+          </div>
 
         </div>
       </div>

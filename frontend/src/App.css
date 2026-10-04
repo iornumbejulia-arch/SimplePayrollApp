@@ -553,3 +553,44 @@ tbody tr:hover {
 .editing-title {
   color: #374151;
 }
+.auth-links {
+  display: flex;
+  justify-content: space-between;
+  gap: 15px;
+  margin-top: 20px;
+}
+
+.text-button {
+  border: none;
+  background: none;
+  color: #1f2937;
+  font-size: 14px;
+  cursor: pointer;
+  padding: 5px;
+}
+
+.text-button:hover {
+  text-decoration: underline;
+}
+.password-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.password-wrapper input {
+  width: 100%;
+  padding-right: 45px;
+  box-sizing: border-box;
+}
+
+.password-toggle {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-size: 18px;
+  padding: 5px;
+}

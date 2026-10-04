@@ -1,3 +1,4 @@
+
 const User = require("../models/User");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
@@ -5,7 +6,7 @@ const jwt = require("jsonwebtoken");
 // Register
 const register = async (req, res) => {
     try {
-        const { name, email, password, role } = req.body;
+       const { name, email, password } = req.body;
 
         if (!name || !email || !password) {
             return res.status(400).json({
@@ -31,7 +32,7 @@ const register = async (req, res) => {
             name,
             email,
             password: hashedPassword,
-            role: role || "employee"
+            role: "employee"
         });
 
         res.status(201).json({
@@ -46,6 +47,8 @@ const register = async (req, res) => {
         });
 
     } catch (error) {
+        console.error("Register error:", error);
+
         res.status(500).json({
             success: false,
             message: "Unable to register user",
@@ -113,6 +116,8 @@ const login = async (req, res) => {
         });
 
     } catch (error) {
+        console.error("Login error:", error);
+
         res.status(500).json({
             success: false,
             message: "Unable to login",
@@ -121,7 +126,60 @@ const login = async (req, res) => {
     }
 };
 
+// Forgot Password
+const forgotPassword = async (req, res) => {
+    try {
+        const { email, newPassword } = req.body;
+
+        if (!email || !newPassword) {
+            return res.status(400).json({
+                success: false,
+                message: "Email and new password are required",
+                data: null
+            });
+        }
+
+        if (newPassword.length < 6) {
+            return res.status(400).json({
+                success: false,
+                message: "Password must be at least 6 characters",
+                data: null
+            });
+        }
+
+        const user = await User.findOne({ email });
+
+        if (!user) {
+            return res.status(404).json({
+                success: false,
+                message: "No account found with this email",
+                data: null
+            });
+        }
+
+        user.password = await bcrypt.hash(newPassword, 10);
+
+        await user.save();
+
+        res.json({
+            success: true,
+            message: "Password reset successfully",
+            data: null
+        });
+
+    } catch (error) {
+        console.error("Forgot password error:", error);
+
+        res.status(500).json({
+            success: false,
+            message: "Unable to reset password",
+            data: null
+        });
+    }
+};
+
 module.exports = {
     register,
-    login
+    login,
+    forgotPassword
 };
