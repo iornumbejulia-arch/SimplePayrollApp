@@ -150,7 +150,7 @@ Users have different roles:
 * **Admin** — can manage employees, salaries, deductions and payroll.
 * **Employee/User** — has limited permissions.
 
-The administrator account should be created securely and the password should not be stored in this README.
+The administrator account should be created securely and the password must not be stored in this README.
 
 ## 🗄️ Database
 
